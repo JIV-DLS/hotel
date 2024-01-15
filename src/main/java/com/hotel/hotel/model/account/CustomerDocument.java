@@ -1,4 +1,4 @@
-package com.hotel.hotel.domain.account;
+package com.hotel.hotel.model.account;
 
 
 import jakarta.validation.constraints.Email;

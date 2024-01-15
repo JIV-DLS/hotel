@@ -1,4 +1,4 @@
-package com.hotel.hotel.domain.account;
+package com.hotel.hotel.model.account;
 
 import com.hotel.hotel.dataBase.account.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;

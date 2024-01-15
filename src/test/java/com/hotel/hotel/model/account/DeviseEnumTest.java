@@ -1,8 +1,6 @@
-package com.hotel.hotel.domain.account;
+package com.hotel.hotel.model.account;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class DeviseEnumTest {
     @Test
