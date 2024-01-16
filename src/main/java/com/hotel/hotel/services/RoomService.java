@@ -2,12 +2,6 @@ package com.hotel.hotel.services;
 
 import com.hotel.hotel.model.room.Room;
 import com.hotel.hotel.model.room.RoomType;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import com.hotel.hotel.repository.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
