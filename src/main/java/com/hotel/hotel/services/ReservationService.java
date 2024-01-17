@@ -7,7 +7,6 @@ import com.hotel.hotel.model.reservation.Reservation;
 import com.hotel.hotel.model.reservation.ReservationStatus;
 import com.hotel.hotel.model.room.Room;
 import com.hotel.hotel.model.room.RoomType;
-import com.hotel.hotel.model.wallet.Currency;
 import com.hotel.hotel.repository.ClientRepository;
 import com.hotel.hotel.repository.ReservationRepository;
 import com.hotel.hotel.repository.RoomRepository;
@@ -47,7 +46,7 @@ public class ReservationService {
 
             BigDecimal totalAmount = room.getPricePerNight().multiply(BigDecimal.valueOf(numberOfNights));
             try {
-                this.clientService.debitClientById(clientId, totalAmount.divide(BigDecimal.valueOf(2), RoundingMode.CEILING), Currency.EURO);
+                this.clientService.debitClientByEmail(clientId, totalAmount.divide(BigDecimal.valueOf(2), RoundingMode.CEILING));
                 Reservation newReservation = new Reservation(client, room, checkInDate, numberOfNights, ReservationStatus.REGISTERED, totalAmount, null);
 
                 return reservationRepository.save(newReservation);
@@ -65,15 +64,22 @@ public class ReservationService {
     }
 
     // Get reservations for a specific client
-    public List<Reservation> getReservationsByClientId(String clientId) {
-        return reservationRepository.findReservationsByClientId(clientId);
+    public List<Reservation> getReservationsByClientId(String email) {
+        return reservationRepository.findReservationsByClientId(email);
     }
     // Update reservation status
-    public boolean updateReservationStatus(String reservationId, ReservationStatus newStatus) {
+    public boolean confirmReservation(String reservationId, ReservationStatus newStatus) {
         Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
 
         if (optionalReservation.isPresent()) {
             Reservation reservation = optionalReservation.get();
+
+            try {
+                this.clientService.debitClientByEmail(reservation.getClient().getEmail(), reservation.getTotalAmount().divide(BigDecimal.valueOf(2), RoundingMode.CEILING));
+            } catch(Exception e) {
+                return false;
+            }
+
             reservation.setStatus(newStatus);
 
             if (newStatus == ReservationStatus.CONFIRMED) {
@@ -87,7 +93,7 @@ public class ReservationService {
         return false;
     }
     // Update reservation status
-    public void updateReservationStatus(Reservation reservation, ReservationStatus newStatus) {
+    public void confirmReservation(Reservation reservation, ReservationStatus newStatus) {
         reservation.setStatus(newStatus);
         if (newStatus == ReservationStatus.CONFIRMED) {
             reservation.setConfirmationDate(LocalDate.now());

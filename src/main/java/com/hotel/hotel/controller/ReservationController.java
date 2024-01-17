@@ -51,10 +51,11 @@ public class ReservationController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PutMapping("/{reservationId}/confirm")
-    public ResponseEntity<Void> confirmReservation(@PathVariable String reservationId) {
+    @GetMapping("/{reservationId}/confirm")
+    public ResponseEntity<Boolean> confirmReservation(@PathVariable String reservationId) {
 
-        return new ResponseEntity<>(reservationService.updateReservationStatus(reservationId, ReservationStatus.CONFIRMED)?HttpStatus.OK:HttpStatus.NOT_FOUND);
+        boolean reservationDone = reservationService.confirmReservation(reservationId, ReservationStatus.CONFIRMED);
+        return new ResponseEntity<>(reservationDone, reservationDone ?HttpStatus.OK:HttpStatus.NOT_ACCEPTABLE);
     }
 
     @DeleteMapping("/{reservationId}")

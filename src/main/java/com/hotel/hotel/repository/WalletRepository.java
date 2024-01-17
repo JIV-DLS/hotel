@@ -16,5 +16,5 @@ public interface WalletRepository extends MongoRepository<Wallet, String> {
 
     @Query("{ 'type' : ?0 }")
     void deleteRoomByType(@Param("type") RoomType type);
-    // Custom queries can be added here if needed
+
 }

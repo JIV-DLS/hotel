@@ -38,32 +38,41 @@ public class ClientController {
         }
     }
 
-    @GetMapping("/{clientId}/credit/{amount}/{currency}")
-    public ResponseEntity<Boolean> creditClientById(@PathVariable String clientId, @PathVariable int amount, @PathVariable String currency) {
+    @GetMapping("/{email}/credit/{amount}/{currency}")
+    public ResponseEntity<Boolean> creditClientByEmail(@PathVariable String email, @PathVariable int amount, @PathVariable String currency) {
         try {
-            clientService.creditClientById(clientId, BigDecimal.valueOf(amount), Currency.valueOf(currency));
+            clientService.creditClientByEmail(email, BigDecimal.valueOf(amount), Currency.valueOf(currency));
             return new ResponseEntity<>(Boolean.TRUE, HttpStatus.CREATED);
         }catch (WalletNotFoundError | UserNotFoundError e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @GetMapping("/{clientId}/balance/{currency}")
-    public ResponseEntity<BigDecimal> creditClientById(@PathVariable String clientId, @PathVariable String currency) {
-        return clientService.getClientById(clientId)
+    @GetMapping("/{email}/refund")
+    public ResponseEntity<Boolean> refundClientByEmail(@PathVariable String email) {
+        try {
+            clientService.refundClientByEmail(email);
+            return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
+        }catch (UserNotFoundError e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @GetMapping("/{email}/balance/{currency}")
+    public ResponseEntity<BigDecimal> creditClientByEmail(@PathVariable String email, @PathVariable String currency) {
+        return clientService.getClientById(email)
                 .map(client -> new ResponseEntity<>(convertFromEuro(client.getWallet().getBalance(), Currency.valueOf(currency)), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
     }
 
-    @PutMapping("/{clientId}")
-    public ResponseEntity<Void> updateClient(@PathVariable String clientId, @RequestBody ClientDto clientDto) {
-        clientService.updateClient(clientId, clientDto.getFullName(), clientDto.getEmail(), clientDto.getPhoneNumber());
+    @PutMapping("/{email}")
+    public ResponseEntity<Void> updateClient(@PathVariable String email, @RequestBody ClientDto clientDto) {
+        clientService.updateClient(clientDto.getFullName(), clientDto.getEmail(), clientDto.getPhoneNumber());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping("/{clientId}")
-    public ResponseEntity<Void> deleteClient(@PathVariable String clientId) {
-        clientService.deleteClient(clientId);
+    @DeleteMapping("/{email}")
+    public ResponseEntity<Void> deleteClient(@PathVariable String email) {
+        clientService.deleteClient(email);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

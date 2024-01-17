@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ReservationRepository extends MongoRepository<Reservation, String> {
-    @Query("{ 'client.id' : ?0 }")
-    List<Reservation> findReservationsByClientId(@Param("clientId") String clientId);
+    @Query("{ 'client.email' : ?0 }")
+    List<Reservation> findReservationsByClientId(@Param("email") String email);
     // Custom queries can be added here if needed
 }

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -50,6 +51,7 @@ public class WalletService {
         EXCHANGE_RATES_TO_EURO.put(Currency.SWISS_FRANC, new BigDecimal("1.06")); // Example rate: 1 CHF = 0.94 EUR
 
         EXCHANGE_RATES_FROM_EURO = new HashMap<>();
+        EXCHANGE_RATES_FROM_EURO.put(Currency.EURO, BigDecimal.ONE);
         EXCHANGE_RATES_FROM_EURO.put(Currency.DOLLAR, new BigDecimal("1.12")); // Example rate: 1 USD = 0.89 EUR
         EXCHANGE_RATES_FROM_EURO.put(Currency.POUND_STERLING, new BigDecimal("0.85")); // Example rate: 1 GBP = 1.18 EUR
         EXCHANGE_RATES_FROM_EURO.put(Currency.YEN, new BigDecimal("130.71")); // Example rate: 1 JPY = 0.0077 EUR
@@ -57,20 +59,25 @@ public class WalletService {
     }
 
     public Wallet credit(Wallet wallet, BigDecimal amount, Currency currency) {
-        validateCurrency(wallet, currency);
+        //validateCurrency(wallet, currency);
         BigDecimal amountInEuro = convertToEuro(amount, currency);
         wallet.setBalance(wallet.getBalance().add(amountInEuro));
 
         return walletRepository.save(wallet);
     }
 
-    public void debit(Wallet wallet, BigDecimal amount, Currency currency) {
-        validateCurrency(wallet, currency);
-        BigDecimal amountInEuro = convertToEuro(amount, currency);
+    public void debit(Wallet wallet, BigDecimal amountInEuro) {
+        //validateCurrency(wallet, currency);
         if (wallet.getBalance().compareTo(amountInEuro) < 0) {
             throw new IllegalArgumentException("Insufficient funds in the wallet");
         }
         wallet.setBalance(wallet.getBalance().subtract(amountInEuro));
+        walletRepository.save(wallet);
+    }
+
+    public void debit(Wallet wallet, BigDecimal amount, Currency currency) {
+        BigDecimal amountInEuro = convertToEuro(amount, currency);
+        debit(wallet, amountInEuro);
     }
 
     private void validateCurrency(Wallet wallet, Currency currency) {
@@ -87,12 +94,12 @@ public class WalletService {
         if (exchangeRate == null) {
             throw new IllegalArgumentException("Exchange rate not available for currency: " + currency);
         }
-        return amount.multiply(exchangeRate);
+        return amount.divide(exchangeRate, RoundingMode.CEILING);
     }
     public static BigDecimal convertFromEuro(BigDecimal amount, Currency targetCurrency) {
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be greater than zero");
-        }
+        //if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+        //    throw new IllegalArgumentException("Amount must be greater than zero");
+        //}
 
         BigDecimal exchangeRate = EXCHANGE_RATES_FROM_EURO.get(targetCurrency);
         if (exchangeRate == null) {
@@ -100,6 +107,11 @@ public class WalletService {
         }
 
         return amount.multiply(exchangeRate);
+    }
+
+    public void refund(Wallet wallet) {
+        wallet.setBalance(BigDecimal.valueOf(0));
+        walletRepository.save(wallet);
     }
 }
 

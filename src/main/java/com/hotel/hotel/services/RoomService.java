@@ -34,7 +34,7 @@ public class RoomService {
         if (gottenRooms.isEmpty()){
             createRoom(RoomType.STANDARD, BigDecimal.valueOf(50), new HashSet<>(Set.of("Lit 1 place", "Wifi", "TV")));
             createRoom(RoomType.SUPERIOR, BigDecimal.valueOf(100), new HashSet<>(Set.of("Lit 2 places", "Wifi", "TV écran plat", "Minibar", "Climatiseur")));
-            createRoom(RoomType.STANDARD, BigDecimal.valueOf(200), new HashSet<>(Set.of("Lit 2 places", "Wifi", "TV écran plat", "Minibar", "Climatiseur", "Baignoire", "Terrasse")));
+            createRoom(RoomType.SUITE, BigDecimal.valueOf(200), new HashSet<>(Set.of("Lit 2 places", "Wifi", "TV écran plat", "Minibar", "Climatiseur", "Baignoire", "Terrasse")));
             return getAllRooms();
         }
         return roomRepository.findAll();
