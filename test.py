@@ -32,35 +32,36 @@ def create_client(full_name="John Doe", email="john.doe@example.com", phone_numb
         "phoneNumber": phone_number
     }
     response = requests.post(base_url + endpoint, json=client_data)
-    #print("Scenario 1 - Create Client:")
+    # print("Scenario 1 - Create Client:")
     created_client = response.json()
-    #print(created_client)
+    # print(created_client)
     return created_client
 
 
 def credit_account(client_email, amount, currency=DOLLAR):
     endpoint = f"/clients/{client_email}/credit/{amount}/{currency}"
     response = requests.get(base_url + endpoint)
-    #print("Scenario - Credite client account:")
+    # print("Scenario - Credite client account:")
     credited = response.json()
-    #print(credited)
+    # print(credited)
     return credited
+
 
 def refund_account(client_email):
     endpoint = f"/clients/{client_email}/refund"
     response = requests.get(base_url + endpoint)
-    #print("Scenario - Credite client account:")
+    # print("Scenario - Credite client account:")
     credited = response.json()
-    #print(credited)
+    # print(credited)
     return credited
 
 
 def get_account_balance(client_email, currency=DOLLAR):
     endpoint = f"/clients/{client_email}/balance/{currency}"
     response = requests.get(base_url + endpoint)
-    #print("Scenario - Credite client account:")
+    # print("Scenario - Credite client account:")
     credited = response.json()
-    #print(credited)
+    # print(credited)
     return credited
 
 
@@ -68,8 +69,8 @@ def get_account_balance(client_email, currency=DOLLAR):
 def fetch_clients():
     endpoint = "/clients"
     response = requests.get(base_url + endpoint)
-    #print("\nScenario 2 - Fetch Clients:")
-    #print(response.json())
+    # print("\nScenario 2 - Fetch Clients:")
+    # print(response.json())
 
 
 # Scenario 3: Make a reservation
@@ -82,9 +83,9 @@ def make_reservation(client_email, room_type, number_of_nights=3, in_x_days=7):
         "numberOfNights": number_of_nights
     }
     response = requests.post(base_url + endpoint, json=reservation_data)
-    #print("\nScenario 3 - Make Reservation:")
+    # print("\nScenario 3 - Make Reservation:")
     reservation_done = response.json()
-    #print(reservation_done)
+    # print(reservation_done)
     return reservation_done
 
 
@@ -96,8 +97,8 @@ def get_day_in_x_days(in_x_days):
 def confirm_reservation(reservationId):
     endpoint = f"/reservations/{reservationId}/confirm"
     response = requests.get(base_url + endpoint)
-    #print("\nScenario - Reservation confirmed:")
-    #print(reservation_confirmed)
+    # print("\nScenario - Reservation confirmed:")
+    # print(reservation_confirmed)
     return response
 
 
@@ -105,14 +106,23 @@ def confirm_reservation(reservationId):
 def fetch_reservations():
     endpoint = "/reservations"
     response = requests.get(base_url + endpoint)
-    #print("\nScenario 4 - Fetch Reservations:")
+    # print("\nScenario 4 - Fetch Reservations:")
     return response.json()
+
 
 # Scenario 4: Fetch reservations
 def get_reservation(reservation_id):
     endpoint = f"/reservations/{reservation_id}"
     response = requests.get(base_url + endpoint)
-    #print("\nScenario 4 - Fetch Reservations:")
+    # print("\nScenario 4 - Fetch Reservations:")
+    return response.json()
+
+
+# Scenario 4: Fetch reservations
+def cancel_reservation(reservation_id):
+    endpoint = f"/reservations/{reservation_id}/cancel"
+    response = requests.get(base_url + endpoint)
+    # print("\nScenario 4 - Fetch Reservations:")
     return response.json()
 
 
@@ -120,14 +130,16 @@ def get_reservation(reservation_id):
 def fetch_rooms():
     endpoint = "/rooms"
     response = requests.get(base_url + endpoint)
-    #print("\nScenario 5 - Fetch Rooms:")
+    # print("\nScenario 5 - Fetch Rooms:")
     rooms = response.json()
-    #print(rooms)
+    # print(rooms)
     return rooms
+
 
 def assert_and_print(condition, message):
     assert condition, message
     print("Assertion succeeded:", message)
+
 
 NUMBER_OF_NIGHTS_IN_THE_FIRST_ROOM = 3
 
@@ -143,7 +155,8 @@ EXCHANGE_RATES_TO_EURO = {
 amount_in_dollars = Decimal('100')
 euro_equivalent = amount_in_dollars / EXCHANGE_RATES_TO_EURO[DOLLAR]
 
-#print(f'{amount_in_dollars} USD is approximately {euro_equivalent:.2f}')
+
+# print(f'{amount_in_dollars} USD is approximately {euro_equivalent:.2f}')
 
 def scenario_1():
     print("""   _____ _____________   _____    ____  ________     ___
@@ -155,6 +168,7 @@ def scenario_1():
 An american user created an account, recharging with dollars it's account to take the room of type STANDARD,
  as Euro is upper than Dollar it recharge it's account for 4 night to be sure that it's reservation will be done
  it reserve the room for 3 night in 7 days and confirm the same day
+ and as the event for which he came for was cancelled, he cancel the reservation
 """)
     client_json = {
         "fullName": 'jack',
@@ -189,7 +203,7 @@ An american user created an account, recharging with dollars it's account to tak
     # (Decimal(balance_after_first_credit - initial_balance)*EXCHANGE_RATES_TO_EURO[DOLLAR]).quantize(Decimal('1.'), rounding=ROUND_CEILING), ((rooms[0]["pricePerNight"] * (NUMBER_OF_NIGHTS+1))*EXCHANGE_RATES_TO_EURO[DOLLAR]).quantize(Decimal('1.'), rounding=ROUND_CEILING)
     # Decimal(balance_after_first_credit - initial_balance)*EXCHANGE_RATES_TO_EURO[DOLLAR], (rooms[0]["pricePerNight"] * (NUMBER_OF_NIGHTS+1))*EXCHANGE_RATES_TO_EURO[DOLLAR]
     assert_and_print(round(balance_after_first_credit - initial_balance) == (
-                rooms[0]["pricePerNight"] * (NUMBER_OF_NIGHTS_IN_ROOM_TYPE_ONE + 1)),
+            rooms[0]["pricePerNight"] * (NUMBER_OF_NIGHTS_IN_ROOM_TYPE_ONE + 1)),
                      f'account credited with the given amount {round(balance_after_first_credit - initial_balance)} in {DOLLAR}')
     reservation_1 = make_reservation(created_client['email'], rooms[0]['type'], NUMBER_OF_NIGHTS_IN_ROOM_TYPE_ONE,
                                      in_x_days=NUMBER_OF_NIGTH_TO_DO_IN_ROOM_1)
@@ -215,15 +229,25 @@ An american user created an account, recharging with dollars it's account to tak
             DOLLAR], 2)) < 1e-10, 'the half of {} is debited suucessfully'.format(
         (reservation_1['totalAmount'] // 2) * EXCHANGE_RATES_TO_EURO[DOLLAR]))
     assert_and_print(abs(Decimal(balance_after_first_credit - balance_after_confirmation_of_room_1) - (
-                Decimal(balance_after_first_credit) - round(
-            Decimal(balance_after_first_credit) - reservation_1['totalAmount'] * EXCHANGE_RATES_TO_EURO[DOLLAR],
-            2))) < 1e-10, 'the half of {} is debited suucessfully'.format(
+            Decimal(balance_after_first_credit) - round(
+        Decimal(balance_after_first_credit) - reservation_1['totalAmount'] * EXCHANGE_RATES_TO_EURO[DOLLAR],
+        2))) < 1e-10, 'the half of {} is debited suucessfully'.format(
         reservation_1['totalAmount'] * EXCHANGE_RATES_TO_EURO[DOLLAR]))
     confirmed_reservation = get_reservation(reservation_1['id'])
     assert_and_print(confirmed_reservation['status'] == 'CONFIRMED',
                      'reservation is in status {}'.format(reservation_1['status']))
     assert_and_print(confirmed_reservation['confirmationDate'] == datetime.now().date().isoformat(),
                      'reservation is done today {}'.format(confirmed_reservation['confirmationDate']))
+
+    assert cancel_reservation(reservation_1['id'])
+
+    deleted_reservation = get_reservation(reservation_1['id'])
+
+    assert_and_print(deleted_reservation['status'] == 'CANCELED',
+                     'reservation is in status {}'.format(reservation_1['status']))
+    assert_and_print(get_account_balance(created_client['email'], DOLLAR) == balance_after_confirmation_of_room_1,
+                     'client balance does not change')
+
 
 def scenario_2():
     print("""   _____ _____________   _____    ____  ________     ___ 
@@ -272,7 +296,7 @@ An user created an account, recharging with euros it's account to take the room 
     # (Decimal(balance_after_first_credit - initial_balance)*EXCHANGE_RATES_TO_EURO[DOLLAR]).quantize(Decimal('1.'), rounding=ROUND_CEILING), ((rooms[0]["pricePerNight"] * (NUMBER_OF_NIGHTS+1))*EXCHANGE_RATES_TO_EURO[DOLLAR]).quantize(Decimal('1.'), rounding=ROUND_CEILING)
     # Decimal(balance_after_first_credit - initial_balance)*EXCHANGE_RATES_TO_EURO[DOLLAR], (rooms[0]["pricePerNight"] * (NUMBER_OF_NIGHTS+1))*EXCHANGE_RATES_TO_EURO[DOLLAR]
     assert_and_print(round(balance_after_first_credit - initial_balance) == (
-                rooms[2]["pricePerNight"] * (NUMBER_OF_NIGHTS_IN_ROOM_TYPE_TWO - 1)),
+            rooms[2]["pricePerNight"] * (NUMBER_OF_NIGHTS_IN_ROOM_TYPE_TWO - 1)),
                      f'account credited with the given amount {round(balance_after_first_credit - initial_balance)} in {EURO}')
     reservation_1 = make_reservation(created_client['email'], rooms[2]['type'], NUMBER_OF_NIGHTS_IN_ROOM_TYPE_TWO,
                                      in_x_days=NUMBER_OF_NIGTH_TO_DO_IN_ROOM_1)
@@ -294,8 +318,8 @@ An user created an account, recharging with euros it's account to take the room 
         2)) < 1e-10, 'the half of {} is debited suucessfully'.format(
         (reservation_1['totalAmount'] // 2) * EXCHANGE_RATES_TO_EURO[EURO]))
 
-    assert_and_print(confirm_reservation(reservation_1['id']).status_code == 406, 'reservation cannot be done because of insufficient fund')
-
+    assert_and_print(confirm_reservation(reservation_1['id']).status_code == 406,
+                     'reservation cannot be done because of insufficient fund')
 
     not_confirmed_reservation = get_reservation(reservation_1['id'])
 
@@ -321,9 +345,9 @@ An user created an account, recharging with euros it's account to take the room 
             EURO], 2)) < 1e-10, 'the half of {} is debited suucessfully'.format(
         (reservation_1['totalAmount'] // 2) * EXCHANGE_RATES_TO_EURO[EURO]))
     assert_and_print(abs(Decimal(balance_after_first_credit - balance_after_confirmation_of_room_1) - (
-                Decimal(balance_after_first_credit) - round(
-            Decimal(balance_after_first_credit) - reservation_1['totalAmount'] * EXCHANGE_RATES_TO_EURO[EURO],
-            2))) < 1e-10, 'the half of {} is debited suucessfully'.format(
+            Decimal(balance_after_first_credit) - round(
+        Decimal(balance_after_first_credit) - reservation_1['totalAmount'] * EXCHANGE_RATES_TO_EURO[EURO],
+        2))) < 1e-10, 'the half of {} is debited suucessfully'.format(
         reservation_1['totalAmount'] * EXCHANGE_RATES_TO_EURO[EURO]))
     confirmed_reservation = get_reservation(reservation_1['id'])
     assert_and_print(confirmed_reservation['status'] == 'CONFIRMED',

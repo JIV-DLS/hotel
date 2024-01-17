@@ -106,10 +106,11 @@ public class ReservationService {
         if (optionalReservation.isPresent()) {
             Reservation reservation = optionalReservation.get();
 
+            reservation.setStatus(ReservationStatus.CANCELED);
             // You may want to implement additional logic related to cancellation,
             // such as handling refunds or sending notifications to clients.
 
-            reservationRepository.delete(reservation);
+            reservationRepository.save(reservation);
             return true; // Cancellation successful
         }
 

@@ -58,9 +58,10 @@ public class ReservationController {
         return new ResponseEntity<>(reservationDone, reservationDone ?HttpStatus.OK:HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @DeleteMapping("/{reservationId}")
-    public ResponseEntity<Void> cancelReservation(@PathVariable String reservationId) {
-        return new ResponseEntity<>(reservationService.cancelReservation(reservationId)?HttpStatus.NO_CONTENT:HttpStatus.NOT_FOUND);
+    @GetMapping("/{reservationId}/cancel")
+    public ResponseEntity<Boolean> cancelReservation(@PathVariable String reservationId) {
+        boolean reservation_cancelled = reservationService.cancelReservation(reservationId);
+        return new ResponseEntity<>(reservation_cancelled, reservation_cancelled ?HttpStatus.OK:HttpStatus.NOT_FOUND);
     }
 
     // Other methods as needed...
