@@ -1,9 +1,12 @@
 package com.hotel.hotel.controller;
 
+import com.hotel.hotel.errors.UserNotFoundError;
+import com.hotel.hotel.errors.WalletNotFoundError;
 import com.hotel.hotel.model.client.Client;
+import com.hotel.hotel.model.wallet.Currency;
 import com.hotel.hotel.services.ClientService;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import static com.hotel.hotel.services.WalletService.convertFromEuro;
 
 @RestController
 @RequestMapping("/clients")
+@CrossOrigin(origins = "http://localhost:8081") // Replace with your allowed origin(s)
 public class ClientController {
 
     private final ClientService clientService;
@@ -34,16 +38,21 @@ public class ClientController {
         }
     }
 
-    @GetMapping
-    public List<Client> getAllClients() {
-        return clientService.getAllClients();
+    @GetMapping("/{clientId}/credit/{amount}/{currency}")
+    public ResponseEntity<Boolean> creditClientById(@PathVariable String clientId, @PathVariable int amount, @PathVariable String currency) {
+        try {
+            clientService.creditClientById(clientId, BigDecimal.valueOf(amount), Currency.valueOf(currency));
+            return new ResponseEntity<>(Boolean.TRUE, HttpStatus.CREATED);
+        }catch (WalletNotFoundError | UserNotFoundError e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
-
-    @GetMapping("/{clientId}")
-    public ResponseEntity<Client> getClientById(@PathVariable String clientId) {
+    @GetMapping("/{clientId}/balance/{currency}")
+    public ResponseEntity<BigDecimal> creditClientById(@PathVariable String clientId, @PathVariable String currency) {
         return clientService.getClientById(clientId)
-                .map(client -> new ResponseEntity<>(client, HttpStatus.OK))
+                .map(client -> new ResponseEntity<>(convertFromEuro(client.getWallet().getBalance(), Currency.valueOf(currency)), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
     }
 
     @PutMapping("/{clientId}")

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -29,6 +30,13 @@ public class RoomService {
 
     // Get all rooms
     public List<Room> getAllRooms() {
+        List<Room> gottenRooms = roomRepository.findAll();
+        if (gottenRooms.isEmpty()){
+            createRoom(RoomType.STANDARD, BigDecimal.valueOf(50), new HashSet<>(Set.of("Lit 1 place", "Wifi", "TV")));
+            createRoom(RoomType.SUPERIOR, BigDecimal.valueOf(100), new HashSet<>(Set.of("Lit 2 places", "Wifi", "TV écran plat", "Minibar", "Climatiseur")));
+            createRoom(RoomType.STANDARD, BigDecimal.valueOf(200), new HashSet<>(Set.of("Lit 2 places", "Wifi", "TV écran plat", "Minibar", "Climatiseur", "Baignoire", "Terrasse")));
+            return getAllRooms();
+        }
         return roomRepository.findAll();
     }
 

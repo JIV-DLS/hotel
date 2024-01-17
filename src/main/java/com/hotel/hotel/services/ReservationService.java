@@ -1,10 +1,13 @@
 package com.hotel.hotel.services;
 
+import com.hotel.hotel.errors.UserNotFoundError;
+import com.hotel.hotel.errors.WalletNotFoundError;
 import com.hotel.hotel.model.client.Client;
 import com.hotel.hotel.model.reservation.Reservation;
 import com.hotel.hotel.model.reservation.ReservationStatus;
 import com.hotel.hotel.model.room.Room;
 import com.hotel.hotel.model.room.RoomType;
+import com.hotel.hotel.model.wallet.Currency;
 import com.hotel.hotel.repository.ClientRepository;
 import com.hotel.hotel.repository.ReservationRepository;
 import com.hotel.hotel.repository.RoomRepository;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -22,12 +26,14 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final RoomRepository roomRepository;
     private final ClientRepository clientRepository;
+    private final ClientService clientService;
 
     @Autowired
-    public ReservationService(ReservationRepository reservationRepository, RoomRepository roomRepository, ClientRepository clientRepository) {
+    public ReservationService(ReservationRepository reservationRepository, RoomRepository roomRepository, ClientRepository clientRepository, ClientService clientService) {
         this.reservationRepository = reservationRepository;
         this.roomRepository = roomRepository;
         this.clientRepository = clientRepository;
+        this.clientService = clientService;
     }
 
     // Create a new reservation
@@ -40,9 +46,14 @@ public class ReservationService {
             Client client = optionalClient.get();
 
             BigDecimal totalAmount = room.getPricePerNight().multiply(BigDecimal.valueOf(numberOfNights));
+            try {
+                this.clientService.debitClientById(clientId, totalAmount.divide(BigDecimal.valueOf(2), RoundingMode.CEILING), Currency.EURO);
+                Reservation newReservation = new Reservation(client, room, checkInDate, numberOfNights, ReservationStatus.REGISTERED, totalAmount, null);
 
-            Reservation newReservation = new Reservation(client, room, checkInDate, numberOfNights, ReservationStatus.REGISTERED, totalAmount, null);
-            return reservationRepository.save(newReservation);
+                return reservationRepository.save(newReservation);
+            } catch (WalletNotFoundError | UserNotFoundError e) {
+                return null;
+            }
         } else {
             return null; // Room or client not found
         }

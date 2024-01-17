@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor(force = true)
 @Data
 @Document(collection = "wallets")
@@ -16,6 +15,11 @@ public class Wallet {
 
     @Id
     private String id;
+
+    public Wallet(BigDecimal balance, Currency currency) {
+        this.balance = balance;
+        this.currency = currency;
+    }
 
     private BigDecimal balance;
     private Currency currency;

@@ -1,16 +1,14 @@
 package com.hotel.hotel.model.room;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
 import java.util.Set;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
+@Setter
 @Data
 @Document(collection = "rooms")
 public class Room {
