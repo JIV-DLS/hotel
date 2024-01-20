@@ -35,9 +35,9 @@ public class ReservationService {
     }
 
     // Create a new reservation
-    public Reservation createReservation(String clientId, RoomType roomType, LocalDate checkInDate, int numberOfNights) {
+    public Reservation createReservation(String clientEmail, RoomType roomType, LocalDate checkInDate, int numberOfNights) {
         Optional<Room> optionalRoom = roomRepository.findRoomByType(roomType);
-        Optional<Client> optionalClient = clientRepository.findById(clientId);
+        Optional<Client> optionalClient = clientRepository.findById(clientEmail);
 
         if (optionalRoom.isPresent() && optionalClient.isPresent()) {
             Room room = optionalRoom.get();
@@ -45,7 +45,7 @@ public class ReservationService {
 
             BigDecimal totalAmount = room.getPricePerNight().multiply(BigDecimal.valueOf(numberOfNights));
             try {
-                this.clientService.debitClientByEmail(clientId, totalAmount.divide(BigDecimal.valueOf(2), RoundingMode.CEILING));
+                this.clientService.debitClientByEmail(clientEmail, totalAmount.divide(BigDecimal.valueOf(2), RoundingMode.CEILING));
                 Reservation newReservation = new Reservation(client, room, checkInDate, numberOfNights, ReservationStatus.REGISTERED, totalAmount, null);
 
                 return reservationRepository.save(newReservation);

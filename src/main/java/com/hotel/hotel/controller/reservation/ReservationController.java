@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -27,9 +28,9 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<Reservation> createReservation(@RequestBody ReservationDto reservationDto) {
         Reservation newReservation = reservationService.createReservation(
-                reservationDto.getClientId(),
+                reservationDto.getClientEmail(),
                 reservationDto.getRoomType(),
-                LocalDate.parse(reservationDto.getCheckInDate()),
+                LocalDate.parse(reservationDto.getCheckInDate(), DateTimeFormatter.ISO_DATE_TIME),
                 reservationDto.getNumberOfNights()
         );
         if (newReservation != null) {
@@ -69,7 +70,7 @@ public class ReservationController {
     // DTO class for receiving reservation data in requests
     @Getter
     public static class ReservationDto {
-        private String clientId;
+        private String clientEmail;
         private RoomType roomType;
         private String checkInDate;
         private int numberOfNights;

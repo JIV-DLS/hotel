@@ -1,12 +1,16 @@
 package com.hotel.hotel.controller.client;
 
 import com.hotel.hotel.domain.client.UserNotFoundError;
+import com.hotel.hotel.domain.reservation.Reservation;
+import com.hotel.hotel.domain.reservation.ReservationService;
 import com.hotel.hotel.domain.wallet.WalletNotFoundError;
 import com.hotel.hotel.domain.client.Client;
 import com.hotel.hotel.domain.wallet.Currency;
 import com.hotel.hotel.domain.client.ClientService;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +26,12 @@ import static com.hotel.hotel.domain.wallet.WalletService.convertFromEuro;
 public class ClientController {
 
     private final ClientService clientService;
+    private final ReservationService reservationService;
 
     @Autowired
-    public ClientController(ClientService clientService) {
+    public ClientController(ClientService clientService, ReservationService reservationService) {
         this.clientService = clientService;
+        this.reservationService = reservationService;
     }
 
     @PostMapping
@@ -45,6 +51,14 @@ public class ClientController {
             return new ResponseEntity<>(Boolean.TRUE, HttpStatus.CREATED);
         }catch (WalletNotFoundError | UserNotFoundError e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    @GetMapping("/{email}/reservations")
+    public ResponseEntity<List<Reservation>> reservationsClientByEmail(@PathVariable String email) {
+        try {
+            return new ResponseEntity<>(this.reservationService.getReservationsByClientId(email), HttpStatus.OK);
+        }catch (Exception e) {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NOT_FOUND);
         }
     }
     @GetMapping("/{email}/refund")
