@@ -16,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/reservations")
+@CrossOrigin(maxAge = 3600, origins = "*")
 public class ReservationController {
 
     private final ReservationService reservationService;
@@ -30,6 +31,7 @@ public class ReservationController {
         Reservation newReservation = reservationService.createReservation(
                 reservationDto.getClientEmail(),
                 reservationDto.getRoomType(),
+
                 LocalDate.parse(reservationDto.getCheckInDate(), DateTimeFormatter.ISO_DATE_TIME),
                 reservationDto.getNumberOfNights()
         );

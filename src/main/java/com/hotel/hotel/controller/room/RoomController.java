@@ -15,6 +15,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/rooms")
+@CrossOrigin(maxAge = 3600, origins = "*")
 public class RoomController {
 
     private final RoomService roomService;

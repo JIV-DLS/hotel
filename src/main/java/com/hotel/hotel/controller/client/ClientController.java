@@ -15,14 +15,15 @@ import java.util.List;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.hotel.hotel.domain.wallet.WalletService.convertFromEuro;
 
+@RequestMapping(value = "/clients")
 @RestController
-@RequestMapping("/clients")
-@CrossOrigin(origins = "http://localhost:8081") // Replace with your allowed origin(s)
+@CrossOrigin(maxAge = 3600, origins = "*")
 public class ClientController {
 
     private final ClientService clientService;
